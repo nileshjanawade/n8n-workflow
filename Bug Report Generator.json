@@ -1,0 +1,167 @@
+{
+  "name": "Bug Report Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -400,
+        -64
+      ],
+      "id": "c1048cf0-04fb-4c0a-be2b-e3b572d9e2fa",
+      "name": "When chat message received",
+      "webhookId": "87222680-8a82-447a-86f0-1d85d9695bfd"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are QA manger of 10 year of experience.\nCreate a bug report with below fields \nTitle, Description, Steps to reproduce, Expected result, Actual result and Priority.\nPOST /api/checkout | 500 Internal Server Error | user_id=4521 | cart_items=3 | payment_gateway_timeout after 30s\n\n[ERROR: Bad request - please check your parameters]\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -128,
+        -160
+      ],
+      "id": "393fb18f-2e09-470e-aa87-dc71249aa5ce",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        48
+      ],
+      "id": "bfd1e0ac-2d91-4fea-b7f9-6dde12568f2a",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "EGqBzXH3vBG8vwO2",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1kfMXbPSOAWkpW9cx-luk5WGc46xZ47Rl",
+        "title": "Ai Learning"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -160
+      ],
+      "id": "8e99f1e8-d491-49c6-9a44-1b738ec0df13",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "jguPpyBCzWHuwG9D",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -160
+      ],
+      "id": "13110786-fb9d-4dba-ab1b-4b226b6523c6",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "jguPpyBCzWHuwG9D",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "32dba731-cab7-455a-a54b-20f0a0c1d95d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dfd8a3287d5b2700c420db80391db61ffdfd343fbd441bbbd5b8a5b324d7761f"
+  },
+  "id": "EJLm1MSqUH1SOIrP",
+  "tags": []
+}
